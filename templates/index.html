@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Cyber Bullying Detection - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary">
+                <i class="fas fa-shield-alt me-3"></i>
+                Cyber Bullying Detection System
+            </h1>
+            <p class="lead text-muted">
+                Advanced AI-powered system to detect and classify cyber bullying in text content
+            </p>
+        </div>
+    </div>
+</div>
+
+{% if not model_loaded %}
+<div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Model Loading:</strong> The AI model is currently being loaded or trained. Please wait a moment and refresh the page.
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Single Text Detection -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Single Text Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="singleTextForm">
+                    <div class="mb-3">
+                        <label for="textInput" class="form-label">Enter text to analyze:</label>
+                        <textarea 
+                            class="form-control" 
+                            id="textInput" 
+                            rows="4" 
+                            placeholder="Enter the text you want to analyze for cyber bullying..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" {% if not model_loaded %}disabled{% endif %}>
+                        <span class="loading">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Analyzing...
+                        </span>
+                        <span class="not-loading">
+                            <i class="fas fa-search me-2"></i>
+                            Analyze Text
+                        </span>
+                    </button>
+                </form>
+                
+                <!-- Results -->
+                <div id="singleResult" class="mt-3" style="display: none;">
+                    <div class="result-card">
+                        <h6 class="mb-2">
+                            <i class="fas fa-robot me-2"></i>
+                            Analysis Result
+                        </h6>
+                        <div class="mb-2">
+                            <strong>Classification:</strong> 
+                            <span id="singlePrediction" class="badge bg-light text-dark"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Confidence:</strong> 
+                            <span id="singleConfidence"></span>%
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="singleConfidenceBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Batch Text Detection -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Batch Text Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="batchTextForm">
+                    <div class="mb-3">
+                        <label for="batchTextInput" class="form-label">Enter multiple texts (one per line):</label>
+                        <textarea 
+                            class="form-control" 
+                            id="batchTextInput" 
+                            rows="4" 
+                            placeholder="Enter multiple texts, one per line..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100" {% if not model_loaded %}disabled{% endif %}>
+                        <span class="loading">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Analyzing...
+                        </span>
+                        <span class="not-loading">
+                            <i class="fas fa-list me-2"></i>
+                            Analyze Batch
+                        </span>
+                    </button>
+                </form>
+                
+                <!-- Batch Results -->
+                <div id="batchResult" class="mt-3" style="display: none;">
+                    <h6 class="mb-3">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Batch Analysis Results
+                    </h6>
+                    <div id="batchResultsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3 class="text-center mb-4">System Features</h3>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">AI-Powered</h5>
+                <p class="card-text">Uses advanced machine learning algorithms for accurate detection.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Real-time</h5>
+                <p class="card-text">Instant analysis and classification of text content.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Secure</h5>
+                <p class="card-text">Your data is processed securely and not stored permanently.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sample Texts -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Try These Sample Texts
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-danger">Examples of Cyber Bullying:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <button class="btn btn-outline-danger btn-sm sample-text" data-text="You are so stupid and worthless!">
+                                    "You are so stupid and worthless!"
+                                </button>
+                            </li>
+                            <li class="mb-2">
+                                <button class="btn btn-outline-danger btn-sm sample-text" data-text="I hate you! You should just disappear!">
+                                    "I hate you! You should just disappear!"
+                                </button>
+                            </li>
+                            <li class="mb-2">
+                                <button class="btn btn-outline-danger btn-sm sample-text" data-text="You're such a loser, nobody likes you!">
+                                    "You're such a loser, nobody likes you!"
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Examples of Normal Text:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <button class="btn btn-outline-success btn-sm sample-text" data-text="Have a great day! Looking forward to our meeting.">
+                                    "Have a great day! Looking forward to our meeting."
+                                </button>
+                            </li>
+                            <li class="mb-2">
+                                <button class="btn btn-outline-success btn-sm sample-text" data-text="Thanks for the help, really appreciate it!">
+                                    "Thanks for the help, really appreciate it!"
+                                </button>
+                            </li>
+                            <li class="mb-2">
+                                <button class="btn btn-outline-success btn-sm sample-text" data-text="Great job on the presentation today!">
+                                    "Great job on the presentation today!"
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Single text form submission
+    $('#singleTextForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const text = $('#textInput').val().trim();
+        if (!text) {
+            alert('Please enter some text to analyze.');
+            return;
+        }
+        
+        // Show loading state
+        $(this).find('.loading').show();
+        $(this).find('.not-loading').hide();
+        $(this).find('button').prop('disabled', true);
+        
+        // Make API call
+        $.ajax({
+            url: '/predict',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({text: text}),
+            success: function(response) {
+                if (response.error) {
+                    alert('Error: ' + response.error);
+                } else {
+                    displaySingleResult(response);
+                }
+            },
+            error: function() {
+                alert('An error occurred while analyzing the text.');
+            },
+            complete: function() {
+                // Hide loading state
+                $('#singleTextForm .loading').hide();
+                $('#singleTextForm .not-loading').show();
+                $('#singleTextForm button').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Batch text form submission
+    $('#batchTextForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const texts = $('#batchTextInput').val().trim().split('\n').filter(t => t.trim());
+        if (texts.length === 0) {
+            alert('Please enter some texts to analyze.');
+            return;
+        }
+        
+        // Show loading state
+        $(this).find('.loading').show();
+        $(this).find('.not-loading').hide();
+        $(this).find('button').prop('disabled', true);
+        
+        // Make API call
+        $.ajax({
+            url: '/batch_predict',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({texts: texts}),
+            success: function(response) {
+                if (response.error) {
+                    alert('Error: ' + response.error);
+                } else {
+                    displayBatchResults(response.results);
+                }
+            },
+            error: function() {
+                alert('An error occurred while analyzing the texts.');
+            },
+            complete: function() {
+                // Hide loading state
+                $('#batchTextForm .loading').hide();
+                $('#batchTextForm .not-loading').show();
+                $('#batchTextForm button').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Sample text buttons
+    $('.sample-text').on('click', function() {
+        const text = $(this).data('text');
+        $('#textInput').val(text);
+    });
+    
+    function displaySingleResult(response) {
+        $('#singlePrediction').text(response.prediction);
+        $('#singleConfidence').text((response.confidence * 100).toFixed(1));
+        $('#singleConfidenceBar').css('width', (response.confidence * 100) + '%');
+        $('#singleResult').show();
+    }
+    
+    function displayBatchResults(results) {
+        let html = '';
+        results.forEach((result, index) => {
+            const confidencePercent = (result.confidence * 100).toFixed(1);
+            html += `
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="mb-1"><strong>Text ${index + 1}:</strong> "${result.text}"</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span class="badge bg-primary me-2">${result.prediction}</span>
+                                <span class="text-muted">${confidencePercent}%</span>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 5px;">
+                            <div class="progress-bar" style="width: ${confidencePercent}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        $('#batchResultsList').html(html);
+        $('#batchResult').show();
+    }
+});
+</script>
+{% endblock %}
